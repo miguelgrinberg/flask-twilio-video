@@ -2,31 +2,7 @@
 <html>
     <head>
         <script src="//media.twiliocdn.com/sdk/js/video/releases/2.0.0/twilio-video.min.js"></script>
-        <style>
-            .container {
-                margin-top: 20px;
-                width: 100%;
-                display: flex;
-                flex-wrap: wrap;
-            }
-            .participant {
-                margin-bottom: 5px;
-                margin-right: 5px;
-            }
-            .participant div {
-                text-align: center;
-            }
-            .participant div:first-child {
-                width: 240px;
-                height: 180px;
-                background-color: #ccc;
-                border: 1px solid black;
-            }
-            .participant video {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
         <h1>Flask & Twilio Video Conference</h1>
@@ -36,123 +12,7 @@
         </form>
         <p id="count"></p>
         <div id="container" class="container"></div>
-        <script>
-            var connected = false;
-            var container = document.getElementById('container');
-            var usernameInput = document.getElementById('username');
-            var button = document.getElementById('join_leave');
-            var count = document.getElementById('count');
-            var room;
 
-            var join_leave_call = (event) => {
-                event.preventDefault();
-                if (!connected) {
-                    button.disabled = true;
-                    button.innerHTML = 'Connecting...';
-
-                    // get a token from the back end
-                    var username = usernameInput.value;
-                    if (!username) {
-                        alert('Enter your name before connecting');
-                        return;
-                    }
-
-                    fetch('/login', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({'username': username})
-                    }).then(res => res.json()).then(data => {
-                        var token = data.token;
-                        
-                        // join call
-                        Twilio.Video.connect(token).then(_room => {
-                            room = _room;
-                            room.participants.forEach(participantConnected);
-                            room.on('participantConnected', participantConnected);
-                            room.on('participantDisconnected', participantDisconnected);
-                            connected = true;
-                            button.innerHTML = 'Leave call';
-                            button.disabled = false;
-                            updateParticipantCount();
-                        });
-                    }).catch(() => {
-                        alert('Could not obtain token. Is the backend running?');
-                        button.innerHTML = 'Join call';
-                        button.disabled = false;
-                    });
-                }
-                else {
-                    room.disconnect();
-                    while (container.childNodes.length > 1)
-                        container.removeChild(container.lastChild);
-                    button.innerHTML = 'Join call';
-                    connected = false;
-                    updateParticipantCount();
-                }
-            };
-
-            var addParticipant = (sid, name) => {
-                var participant = document.createElement('div');
-                participant.setAttribute('id', sid);
-                participant.setAttribute('class', 'participant');
-
-                var tracks = document.createElement('div');
-                participant.appendChild(tracks);
-
-                var label = document.createElement('div');
-                label.innerHTML = name;
-                participant.appendChild(label);
-
-                container.appendChild(participant);
-                return participant;
-            };
-
-            var participantConnected = (participant) => {
-                var div = addParticipant(participant.sid, participant.identity);
-
-                participant.on('trackSubscribed', track => trackSubscribed(div, track));
-                participant.on('trackUnsubscribed', trackUnsubscribed);
-
-                participant.tracks.forEach(publication => {
-                    if (publication.isSubscribed)
-                        trackSubscribed(div, publication.track);
-                });
-
-                updateParticipantCount();
-            };
-
-            var participantDisconnected = (participant) => {
-                document.getElementById(participant.sid).remove();
-                updateParticipantCount();
-            };
-
-            var trackSubscribed = (div, track) => {
-                if (track.dimensions && track.dimensions.width)
-                    track.dimensions.width = 240;
-                div.firstChild.appendChild(track.attach());
-            };
-
-            var trackUnsubscribed = (track) => {
-                track.detach().forEach(element => element.remove());
-            };
-
-            var updateParticipantCount = () => {
-                if (!connected)
-                    count.innerHTML = 'Disconnected.';
-                else
-                    count.innerHTML = (room.participants.size + 1) + ' participants online.';
-            };
-
-            button.addEventListener('click', join_leave_call);
-            updateParticipantCount();
-            Twilio.Video.createLocalVideoTrack({width: 240}).then(track => {
-                var div = addParticipant('local', 'Me');
-                trackSubscribed(div, track);
-                updateParticipantCount();
-            });
-        </script>
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
     </body>
 </html>

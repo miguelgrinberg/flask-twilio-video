@@ -1,0 +1,23 @@
+.container {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+.participant {
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+.participant div {
+    text-align: center;
+}
+.participant div:first-child {
+    width: 240px;
+    height: 180px;
+    background-color: #ccc;
+    border: 1px solid black;
+}
+.participant video {
+    width: 100%;
+    height: 100%;
+}
