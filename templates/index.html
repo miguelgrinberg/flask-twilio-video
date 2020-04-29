@@ -1,18 +1,21 @@
 <!doctype html>
 <html>
     <head>
-        <script src="//media.twiliocdn.com/sdk/js/video/releases/2.0.0/twilio-video.min.js"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
         <h1>Flask & Twilio Video Conference</h1>
         <form>
             Name: <input type="text" id="username">
-            <button id="join_leave">Join call</button>
+            <button id="join_leave_button">Join call</button>
         </form>
-        <p id="count"></p>
-        <div id="container" class="container"></div>
+        <p id="count">Disconnected.</p>
+        <div id="container" class="container">
+            <div id="local" class="participant"><div></div><div>Me</div></div>
+            <!-- more participants will be added dynamically here -->
+        </div>
 
+        <script src="//media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
         <script src="{{ url_for('static', filename='app.js') }}"></script>
     </body>
 </html>

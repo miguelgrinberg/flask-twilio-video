@@ -1,116 +1,121 @@
 const usernameInput = document.getElementById('username');
-const button = document.getElementById('join_leave');
+const button = document.getElementById('join_leave_button');
 const container = document.getElementById('container');
 const count = document.getElementById('count');
 var connected = false;
 var room;
 
-var connect = () => {
-    // get a token from the back end
-    var username = usernameInput.value;
-    if (!username) {
-        alert('Enter your name before connecting');
-        return;
-    }
-    button.disabled = true;
-    button.innerHTML = 'Connecting...';
+function addLocalVideo() {
+    Twilio.Video.createLocalVideoTrack().then(track => {
+        var video = document.getElementById('local').firstChild;
+        video.appendChild(track.attach());
+    });
+};
 
-    fetch('/login', {
-        method: 'POST',
-        body: JSON.stringify({'username': username})
-    }).then(res => res.json()).then(data => {
-        // join video call
-        Twilio.Video.connect(data.token).then(_room => {
-            room = _room;
-            room.participants.forEach(participantConnected);
-            room.on('participantConnected', participantConnected);
-            room.on('participantDisconnected', participantDisconnected);
-            connected = true;
+function connectButtonHandler(event) {
+    event.preventDefault();
+    if (!connected) {
+        var username = usernameInput.value;
+        if (!username) {
+            alert('Enter your name before connecting');
+            return;
+        }
+        button.disabled = true;
+        button.innerHTML = 'Connecting...';
+        connect(username).then(() => {
             button.innerHTML = 'Leave call';
             button.disabled = false;
-            updateParticipantCount();
+        }).catch(() => {
+            alert('Connection failed. Is the backend running?');
+            button.innerHTML = 'Join call';
+            button.disabled = false;
         });
-    }).catch(() => {
-        alert('Could not obtain token. Is the backend running?');
-        button.innerHTML = 'Join call';
-        button.disabled = false;
-    });
-};
-
-const disconnect = () => {
-    room.disconnect();
-    while (container.childNodes.length > 1)
-        container.removeChild(container.lastChild);
-    button.innerHTML = 'Join call';
-    connected = false;
-    updateParticipantCount();
-};
-
-const submitButtonHandler = (event) => {
-    event.preventDefault();
-    if (!connected)
-        connect();
-    else
+    }
+    else {
         disconnect();
+        button.innerHTML = 'Join call';
+        connected = false;
+    }
 };
 
-const addParticipantDiv = (sid, name) => {
-    var participant = document.createElement('div');
-    participant.setAttribute('id', sid);
-    participant.setAttribute('class', 'participant');
-
-    var tracks = document.createElement('div');
-    participant.appendChild(tracks);
-
-    var label = document.createElement('div');
-    label.innerHTML = name;
-    participant.appendChild(label);
-
-    container.appendChild(participant);
-    return participant;
-};
-
-const participantConnected = (participant) => {
-    var div = addParticipantDiv(participant.sid, participant.identity);
-
-    participant.on('trackSubscribed', track => trackSubscribed(div, track));
-    participant.on('trackUnsubscribed', trackUnsubscribed);
-
-    participant.tracks.forEach(publication => {
-        if (publication.isSubscribed)
-            trackSubscribed(div, publication.track);
+function connect(username) {
+    var promise = new Promise((resolve, reject) => {
+        // get a token from the back end
+        fetch('/login', {
+            method: 'POST',
+            body: JSON.stringify({'username': username})
+        }).then(res => res.json()).then(data => {
+            // join video call
+            Twilio.Video.connect(data.token).then(_room => {
+                room = _room;
+                room.participants.forEach(participantConnected);
+                room.on('participantConnected', participantConnected);
+                room.on('participantDisconnected', participantDisconnected);
+                connected = true;
+                updateParticipantCount();
+                resolve();
+            }).catch(() => {
+                reject();
+            });
+        }).catch(() => {
+            reject();
+        });
     });
-
-    updateParticipantCount();
+    return promise;
 };
 
-const participantDisconnected = (participant) => {
-    document.getElementById(participant.sid).remove();
-    updateParticipantCount();
-};
-
-const trackSubscribed = (div, track) => {
-    div.firstChild.appendChild(track.attach());
-};
-
-const trackUnsubscribed = (track) => {
-    track.detach().forEach(element => element.remove());
-};
-
-const updateParticipantCount = () => {
+function updateParticipantCount() {
     if (!connected)
         count.innerHTML = 'Disconnected.';
     else
         count.innerHTML = (room.participants.size + 1) + ' participants online.';
 };
 
-const addLocalVideo = () => {
-    Twilio.Video.createLocalVideoTrack({width: 240}).then(track => {
-        var div = addParticipantDiv('local', 'Me');
-        trackSubscribed(div, track);
-        updateParticipantCount();
+function participantConnected(participant) {
+    var particpant_div = document.createElement('div');
+    particpant_div.setAttribute('id', participant.sid);
+    particpant_div.setAttribute('class', 'participant');
+
+    var tracks_div = document.createElement('div');
+    particpant_div.appendChild(tracks_div);
+
+    var label_div = document.createElement('div');
+    label_div.innerHTML = participant.identity;
+    particpant_div.appendChild(label_div);
+
+    container.appendChild(particpant_div);
+
+    participant.tracks.forEach(publication => {
+        if (publication.isSubscribed)
+            trackSubscribed(tracks_div, publication.track);
     });
+    participant.on('trackSubscribed', track => trackSubscribed(tracks_div, track));
+    participant.on('trackUnsubscribed', trackUnsubscribed);
+
+    updateParticipantCount();
+};
+
+function participantDisconnected(participant) {
+    document.getElementById(participant.sid).remove();
+    updateParticipantCount();
+};
+
+function trackSubscribed(div, track) {
+    div.appendChild(track.attach());
+};
+
+function trackUnsubscribed(track) {
+    track.detach().forEach(element => element.remove());
+};
+
+function disconnect() {
+    room.disconnect();
+    while (container.lastChild.id != 'local')
+        container.removeChild(container.lastChild);
+    button.innerHTML = 'Join call';
+    connected = false;
+    updateParticipantCount();
 };
 
 addLocalVideo();
-button.addEventListener('click', submitButtonHandler);
+button.addEventListener('click', connectButtonHandler);
