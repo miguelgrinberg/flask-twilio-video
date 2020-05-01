@@ -1,5 +1,5 @@
 const usernameInput = document.getElementById('username');
-const button = document.getElementById('join_leave_button');
+const button = document.getElementById('join_leave');
 const container = document.getElementById('container');
 const count = document.getElementById('count');
 var connected = false;
@@ -73,17 +73,17 @@ function updateParticipantCount() {
 
 function participantConnected(participant) {
     var particpant_div = document.createElement('div');
-    particpant_div.setAttribute('id', participant.sid);
-    particpant_div.setAttribute('class', 'participant');
+    participant_div.setAttribute('id', participant.sid);
+    participant_div.setAttribute('class', 'participant');
 
     var tracks_div = document.createElement('div');
-    particpant_div.appendChild(tracks_div);
+    participant_div.appendChild(tracks_div);
 
     var label_div = document.createElement('div');
     label_div.innerHTML = participant.identity;
-    particpant_div.appendChild(label_div);
+    participant_div.appendChild(label_div);
 
-    container.appendChild(particpant_div);
+    container.appendChild(participant_div);
 
     participant.tracks.forEach(publication => {
         if (publication.isSubscribed)
