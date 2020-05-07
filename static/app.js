@@ -72,7 +72,7 @@ function updateParticipantCount() {
 };
 
 function participantConnected(participant) {
-    var particpant_div = document.createElement('div');
+    var participant_div = document.createElement('div');
     participant_div.setAttribute('id', participant.sid);
     participant_div.setAttribute('class', 'participant');
 
