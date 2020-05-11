@@ -46,17 +46,15 @@ function connect(username) {
             body: JSON.stringify({'username': username})
         }).then(res => res.json()).then(data => {
             // join video call
-            Twilio.Video.connect(data.token).then(_room => {
-                room = _room;
-                room.participants.forEach(participantConnected);
-                room.on('participantConnected', participantConnected);
-                room.on('participantDisconnected', participantDisconnected);
-                connected = true;
-                updateParticipantCount();
-                resolve();
-            }).catch(() => {
-                reject();
-            });
+            return Twilio.Video.connect(data.token);
+        }).then(_room => {
+            room = _room;
+            room.participants.forEach(participantConnected);
+            room.on('participantConnected', participantConnected);
+            room.on('participantDisconnected', participantDisconnected);
+            connected = true;
+            updateParticipantCount();
+            resolve();
         }).catch(() => {
             reject();
         });
