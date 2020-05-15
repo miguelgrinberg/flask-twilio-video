@@ -8,7 +8,7 @@ This is a simple web-based video conferencing application using Flask and Twilio
 
 To install the application on your system follow these steps:
 
-1. [Create a Twilio account](www.twilio.com/referral/7fB3Je) (if you don't have one yet). It's free!
+1. [Create a Twilio account](https://www.twilio.com/referral/7fB3Je) (if you don't have one yet). It's free!
 2. [Generate an API Key](https://www.twilio.com/console/project/api-keys) for your account.
 3. Clone this repository
 4. Create a virtualenv and install the requirements
