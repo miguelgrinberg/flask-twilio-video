@@ -2,12 +2,12 @@ const usernameInput = document.getElementById('username');
 const button = document.getElementById('join_leave');
 const container = document.getElementById('container');
 const count = document.getElementById('count');
-var connected = false;
-var room;
+let connected = false;
+let room;
 
 function addLocalVideo() {
     Twilio.Video.createLocalVideoTrack().then(track => {
-        var video = document.getElementById('local').firstChild;
+        let video = document.getElementById('local').firstChild;
         video.appendChild(track.attach());
     });
 };
@@ -15,7 +15,7 @@ function addLocalVideo() {
 function connectButtonHandler(event) {
     event.preventDefault();
     if (!connected) {
-        var username = usernameInput.value;
+        let username = usernameInput.value;
         if (!username) {
             alert('Enter your name before connecting');
             return;
@@ -39,7 +39,7 @@ function connectButtonHandler(event) {
 };
 
 function connect(username) {
-    var promise = new Promise((resolve, reject) => {
+    let promise = new Promise((resolve, reject) => {
         // get a token from the back end
         fetch('/login', {
             method: 'POST',
@@ -70,24 +70,24 @@ function updateParticipantCount() {
 };
 
 function participantConnected(participant) {
-    var participant_div = document.createElement('div');
-    participant_div.setAttribute('id', participant.sid);
-    participant_div.setAttribute('class', 'participant');
+    let participantDiv = document.createElement('div');
+    participantDiv.setAttribute('id', participant.sid);
+    participantDiv.setAttribute('class', 'participant');
 
-    var tracks_div = document.createElement('div');
-    participant_div.appendChild(tracks_div);
+    let tracksDiv = document.createElement('div');
+    participantDiv.appendChild(tracksDiv);
 
-    var label_div = document.createElement('div');
-    label_div.innerHTML = participant.identity;
-    participant_div.appendChild(label_div);
+    let labelDiv = document.createElement('div');
+    labelDiv.innerHTML = participant.identity;
+    participantDiv.appendChild(labelDiv);
 
-    container.appendChild(participant_div);
+    container.appendChild(participantDiv);
 
     participant.tracks.forEach(publication => {
         if (publication.isSubscribed)
-            trackSubscribed(tracks_div, publication.track);
+            trackSubscribed(tracksDiv, publication.track);
     });
-    participant.on('trackSubscribed', track => trackSubscribed(tracks_div, track));
+    participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
     participant.on('trackUnsubscribed', trackUnsubscribed);
 
     updateParticipantCount();
