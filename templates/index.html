@@ -12,11 +12,12 @@
             <button id="share_screen" disabled>Share screen</button>
         </form>
         <p id="count">Disconnected.</p>
-        <div id="container" class="container">
-            <div id="local" class="participant"><div></div><div class="label">Me</div></div>
-            <!-- more participants will be added dynamically here -->
+        <div id="root">
+            <div id="container" class="container">
+                <div id="local" class="participant"><div></div><div class="label">Me</div></div>
+                <!-- more participants will be added dynamically here -->
+            </div>
         </div>
-
         <script src="//media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
         <script src="{{ url_for('static', filename='app.js') }}"></script>
     </body>

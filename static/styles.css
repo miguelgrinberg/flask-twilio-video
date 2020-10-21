@@ -1,34 +1,64 @@
-.container {
-    margin-top: 20px;
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#root {
+    display: block;
     width: 100%;
+    height: 100%;
+    margin-top: 20px;
+}
+
+.container {
+    width: 100%;
+    height: auto;
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
 }
 .participant {
     margin-bottom: 5px;
     margin-right: 5px;
+    display: grid;
+    grid-template-rows: auto 20px;
 }
 .participant div {
     text-align: center;
 }
 .participant div video {
-    background-color: #ccc;
+    background-color: #eee;
     border: 1px solid black;
 }
-.participant div video:not(.participantZoomed) {
+.participant div video:not(.trackZoomed) {
     width: 240px;
     height: 180px;
 }
 .participant .label {
     background-color: #ddd;
+    padding: 2px;
 }
 .participantZoomed {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    width: 100%;
+    height: calc(100% - 10px);
+    grid-template-rows: auto 30px;
+}
+.participantHidden {
+    display: none;
+}
+.trackZoomed {
     width: 100%;
     height: 100%;
 }
-.participantHidden {
+.participantZoomed div video:not(.trackZoomed) {
+    display: none;
+}
+.participantHidden div video {
+    display: none;
+}
+.participantZoomed .label {
+    margin-top: 8px;
+}
+.participantHidden .label {
     display: none;
 }

@@ -152,35 +152,37 @@ function shareScreenHandler() {
 };
 
 function zoomTrack(trackElement) {
-    if (!trackElement.classList.contains('participantZoomed')) {
+    if (!trackElement.classList.contains('trackZoomed')) {
         // zoom in
         container.childNodes.forEach(participant => {
-            if (participant.className == 'participant') {
+            if (participant.classList && participant.classList.contains('participant')) {
+                let zoomed = false;
                 participant.childNodes[0].childNodes.forEach(track => {
                     if (track === trackElement) {
-                        track.classList.add('participantZoomed')
-                    }
-                    else {
-                        track.classList.add('participantHidden')
+                        track.classList.add('trackZoomed')
+                        zoomed = true;
                     }
                 });
-                participant.childNodes[1].classList.add('participantHidden');
+                if (zoomed) {
+                    participant.classList.add('participantZoomed');
+                }
+                else {
+                    participant.classList.add('participantHidden');
+                }
             }
         });
     }
     else {
         // zoom out
         container.childNodes.forEach(participant => {
-            if (participant.className == 'participant') {
+            if (participant.classList && participant.classList.contains('participant')) {
                 participant.childNodes[0].childNodes.forEach(track => {
                     if (track === trackElement) {
-                        track.classList.remove('participantZoomed');
-                    }
-                    else {
-                        track.classList.remove('participantHidden');
+                        track.classList.remove('trackZoomed');
                     }
                 });
-                participant.childNodes[1].classList.remove('participantHidden');
+                participant.classList.remove('participantZoomed')
+                participant.classList.remove('participantHidden')
             }
         });
     }
