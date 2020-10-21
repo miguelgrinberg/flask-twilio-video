@@ -10,6 +10,7 @@
             <input type="text" name=”username” id="username">
             <button id="join_leave">Join call</button>
             <button id="share_screen" disabled>Share screen</button>
+            <button id="toggle_chat" disabled>Toggle chat</button>
         </form>
         <p id="count">Disconnected.</p>
         <div id="root">
@@ -17,8 +18,17 @@
                 <div id="local" class="participant"><div></div><div class="label">Me</div></div>
                 <!-- more participants will be added dynamically here -->
             </div>
+            <div id="chat">
+                <div id="chat-scroll">
+                    <div id="chat-content">
+                        <!-- chat content will be added dynamically here -->
+                    </div>
+                </div>
+                <input id="chat-input" type="text">
+            </div>
         </div>
-        <script src="//media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
+        <script src="https://media.twiliocdn.com/sdk/js/video/releases/2.3.0/twilio-video.min.js"></script>
+        <script src="https://media.twiliocdn.com/sdk/js/conversations/releases/1.0.0/twilio-conversations.min.js"></script>
         <script src="{{ url_for('static', filename='app.js') }}"></script>
     </body>
 </html>

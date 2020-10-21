@@ -3,22 +3,31 @@ html, body {
     display: flex;
     flex-direction: column;
 }
-#root {
+#root:not(.withChat) {
     display: block;
     width: 100%;
     height: 100%;
     margin-top: 20px;
 }
+#root.withChat {
+    display: grid;
+    grid-template-columns: 75% 25%;
+    height: 100%;
+    margin-top: 20px;
+}
+
+/* video section */
 
 .container {
-    width: 100%;
-    height: auto;
+    width: calc(100% - 5px);
+    height: 100%;
+    padding-right: 5px;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
 }
 .participant {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     margin-right: 5px;
     display: grid;
     grid-template-rows: auto 20px;
@@ -40,7 +49,7 @@ html, body {
 }
 .participantZoomed {
     width: 100%;
-    height: calc(100% - 10px);
+    height: calc(100% - 5px);
     grid-template-rows: auto 30px;
 }
 .participantHidden {
@@ -56,9 +65,31 @@ html, body {
 .participantHidden div video {
     display: none;
 }
+.participantHidden .label {
+    display: none;
+}
 .participantZoomed .label {
     margin-top: 8px;
 }
-.participantHidden .label {
+
+/* chat section */
+
+#root.withChat #chat {
+    width: calc(100% - 10px);
+    display: grid;
+    grid-template-rows: auto 30px;
+    border-left: 1px solid black;
+    padding: 5px;
+}
+#root:not(withChat) #chat {
     display: none;
+}
+#chat #chat-scroll {
+    overflow: auto;
+}
+#chat #chat-content {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    line-height: 1em;
+    max-height: 1px;
 }
