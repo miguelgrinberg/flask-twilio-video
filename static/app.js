@@ -93,15 +93,6 @@ function addPersonToTable(id, panNode) {
     map.push(new Entry(id, panNode));
     let n = roundTable.length;
 
-    if (!audioCtx) {
-        try {
-            audioCtx = new AudioContext();
-        }
-        catch(e) {
-            alert('Web Audio API is not supported in this browser');
-        }
-    }
-
     if (n == 1) {
         panNode.pan.setValueAtTime(0, audioCtx.currentTime);
     } else {
@@ -183,6 +174,15 @@ function participantConnected(participant) {
         if (publication.isSubscribed)
             trackSubscribed(tracksDiv, publication.track);
     });
+
+    if (!audioCtx) {
+        try {
+            audioCtx = new AudioContext();
+        }
+        catch(e) {
+            alert('Web Audio API is not supported in this browser');
+        }
+    }
 
     // Possible error if no <audio> element
     let audio = tracksDiv.getElementsByTagName('audio')[0];
