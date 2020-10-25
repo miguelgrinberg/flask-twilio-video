@@ -8,9 +8,19 @@ let room;
 let screenTrack;
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-var audioCtx = new AudioContext();
 const RANGE = 2;
 var map = [];
+
+var audioCtx;
+window.addEventListener('load', init, false);
+function init() {
+  try {
+    audioCtx = new AudioContext();
+  }
+  catch(e) {
+    alert('Web Audio API is not supported in this browser');
+  }
+}
 
 function addLocalVideo() {
     Twilio.Video.createLocalVideoTrack().then(track => {
