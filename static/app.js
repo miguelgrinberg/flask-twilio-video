@@ -7,6 +7,11 @@ let connected = false;
 let room;
 let screenTrack;
 
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+var audioCtx = new AudioContext();
+const RANGE = 2;
+var roundTable = [];
+
 function addLocalVideo() {
     Twilio.Video.createLocalVideoTrack().then(track => {
         let video = document.getElementById('local').firstChild;
@@ -77,6 +82,9 @@ function updateParticipantCount() {
 };
 
 function participantConnected(participant) {
+    let chair = document.createElement('div');
+    chair.setAttribute('class', 'chair');
+
     let participantDiv = document.createElement('div');
     participantDiv.setAttribute('id', participant.sid);
     participantDiv.setAttribute('class', 'participant');
@@ -89,12 +97,24 @@ function participantConnected(participant) {
     labelDiv.innerHTML = participant.identity;
     participantDiv.appendChild(labelDiv);
 
-    container.appendChild(participantDiv);
+    chair.appendChild(participantDiv);
+    container.appendChild(chair);
 
     participant.tracks.forEach(publication => {
         if (publication.isSubscribed)
             trackSubscribed(tracksDiv, publication.track);
     });
+
+    // Possible error if no <audio> element
+    let audio = tracksDiv.getElementsByTagName('audio')[0];
+
+    let source = audioCtx.createMediaElementSource(audio);
+    let panNode = audioCtx.createStereoPanner();
+
+    source.connect(panNode);
+    panNode.connect(audioCtx.destination);
+    addPersonToTable(panNode); // TODO
+
     participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
     participant.on('trackUnsubscribed', trackUnsubscribed);
 
@@ -102,7 +122,7 @@ function participantConnected(participant) {
 };
 
 function participantDisconnected(participant) {
-    document.getElementById(participant.sid).remove();
+    document.getElementById(participant.sid).parent.remove();
     updateParticipantCount();
 };
 
