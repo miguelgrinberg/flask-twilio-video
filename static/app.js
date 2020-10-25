@@ -92,7 +92,7 @@ function updateParticipantCount() {
 
 function addPersonToTable(id, panNode) {
     map.push(new Entry(id, panNode));
-    let n = roundTable.length;
+    let n = map.length;
 
     if (n == 1) {
         panNode.pan.setValueAtTime(0, audioCtx.currentTime);
@@ -121,8 +121,6 @@ function drop(ev) {
     var src = document.getElementById(srcId);
     var prevChair = src.parentNode;
     var dest = ev.currentTarget.firstElementChild;
-    console.log(src);
-    console.log(dest);
     ev.currentTarget.replaceChild(src, dest);
     prevChair.appendChild(dest);
 
@@ -173,8 +171,10 @@ function participantConnected(participant) {
     container.appendChild(chair);
 
     participant.tracks.forEach(publication => {
-        if (publication.isSubscribed)
+        if (publication.isSubscribed){
             trackSubscribed(tracksDiv, publication.track, participant.sid);
+        }
+           
     });
 
     if (!audioCtx) {
@@ -186,7 +186,11 @@ function participantConnected(participant) {
         }
     }
 
-    participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
+/*
+    // Possible error if no <audio> element
+    */
+
+    participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track, participant.sid));
     participant.on('trackUnsubscribed', trackUnsubscribed);
 
     updateParticipantCount();
@@ -207,16 +211,13 @@ function trackSubscribed(div, track, participantID=null) {
     let trackElement = track.attach();
     trackElement.addEventListener('click', () => { zoomTrack(trackElement); });
     div.appendChild(trackElement);
-    console.log(trackElement);
     if(trackElement.tagName === "AUDIO" && participantID != null){
         let audio = trackElement;
-        console.log(audio);
         let source = audioCtx.createMediaElementSource(audio);
         let panNode = audioCtx.createStereoPanner();
 
         source.connect(panNode);
         panNode.connect(audioCtx.destination);
-
         addPersonToTable(participantID, panNode);
     }
 
