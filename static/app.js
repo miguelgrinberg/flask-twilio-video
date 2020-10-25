@@ -36,10 +36,11 @@ function connectButtonHandler(event) {
             button.innerHTML = 'Leave call';
             button.disabled = false;
             shareScreen.disabled = false;
-        }).catch(() => {
+        }).catch((e) => {
             alert('Connection failed. Is the backend running?');
             button.innerHTML = 'Join call';
             button.disabled = false;
+            console.log(e);
         });
     }
     else {
@@ -82,7 +83,7 @@ function updateParticipantCount() {
         count.innerHTML = (room.participants.size + 1) + ' participants online.';
 };
 
-class Entry {
+ class Entry {
     constructor(id, panNode) {
       this.id = id;
       this.panNode = panNode;
@@ -109,7 +110,7 @@ function allowDrop(ev) {
 }
   
 function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.parentElement.parentElement.id);
+    ev.dataTransfer.setData("text", ev.target.id);
 }
 
 
@@ -120,7 +121,8 @@ function drop(ev) {
     var src = document.getElementById(srcId);
     var prevChair = src.parentNode;
     var dest = ev.currentTarget.firstElementChild;
-
+    console.log(src);
+    console.log(dest);
     ev.currentTarget.replaceChild(src, dest);
     prevChair.appendChild(dest);
 
@@ -172,7 +174,7 @@ function participantConnected(participant) {
 
     participant.tracks.forEach(publication => {
         if (publication.isSubscribed)
-            trackSubscribed(tracksDiv, publication.track);
+            trackSubscribed(tracksDiv, publication.track, participant.sid);
     });
 
     if (!audioCtx) {
@@ -183,16 +185,6 @@ function participantConnected(participant) {
             alert('Web Audio API is not supported in this browser');
         }
     }
-
-    // Possible error if no <audio> element
-    let audio = tracksDiv.getElementsByTagName('audio')[0];
-
-    let source = audioCtx.createMediaElementSource(audio);
-    let panNode = audioCtx.createStereoPanner();
-
-    source.connect(panNode);
-    panNode.connect(audioCtx.destination);
-    addPersonToTable(participant.sid, panNode);
 
     participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
     participant.on('trackUnsubscribed', trackUnsubscribed);
@@ -211,10 +203,23 @@ function participantDisconnected(participant) {
     updateParticipantCount();
 };
 
-function trackSubscribed(div, track) {
+function trackSubscribed(div, track, participantID=null) {
     let trackElement = track.attach();
     trackElement.addEventListener('click', () => { zoomTrack(trackElement); });
     div.appendChild(trackElement);
+    console.log(trackElement);
+    if(trackElement.tagName === "AUDIO" && participantID != null){
+        let audio = trackElement;
+        console.log(audio);
+        let source = audioCtx.createMediaElementSource(audio);
+        let panNode = audioCtx.createStereoPanner();
+
+        source.connect(panNode);
+        panNode.connect(audioCtx.destination);
+
+        addPersonToTable(participantID, panNode);
+    }
+
 };
 
 function trackUnsubscribed(track) {
@@ -294,3 +299,4 @@ function zoomTrack(trackElement) {
 addLocalVideo();
 button.addEventListener('click', connectButtonHandler);
 shareScreen.addEventListener('click', shareScreenHandler);
+
