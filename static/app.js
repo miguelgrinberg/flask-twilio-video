@@ -12,15 +12,6 @@ const RANGE = 2;
 var map = [];
 
 var audioCtx;
-window.addEventListener('load', init, false);
-function init() {
-  try {
-    audioCtx = new AudioContext();
-  }
-  catch(e) {
-    alert('Web Audio API is not supported in this browser');
-  }
-}
 
 function addLocalVideo() {
     Twilio.Video.createLocalVideoTrack().then(track => {
@@ -101,6 +92,16 @@ class Entry {
 function addPersonToTable(id, panNode) {
     map.push(new Entry(id, panNode));
     let n = roundTable.length;
+
+    if (!audioCtx) {
+        try {
+            audioCtx = new AudioContext();
+        }
+        catch(e) {
+            alert('Web Audio API is not supported in this browser');
+        }
+    }
+
     if (n == 1) {
         panNode.pan.setValueAtTime(0, audioCtx.currentTime);
     } else {
