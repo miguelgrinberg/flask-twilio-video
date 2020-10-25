@@ -10,7 +10,7 @@ let screenTrack;
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioCtx = new AudioContext();
 const RANGE = 2;
-var roundTable = [];
+var map = [];
 
 function addLocalVideo() {
     Twilio.Video.createLocalVideoTrack().then(track => {
@@ -81,13 +81,81 @@ function updateParticipantCount() {
         count.innerHTML = (room.participants.size + 1) + ' participants online.';
 };
 
+class Entry {
+    constructor(id, panNode) {
+      this.id = id;
+      this.panNode = panNode;
+    }
+}
+
+function addPersonToTable(id, panNode) {
+    map.push(new Entry(id, panNode));
+    let n = roundTable.length;
+    if (n == 1) {
+        panNode.pan.setValueAtTime(0, audioCtx.currentTime);
+    } else {
+        let step = RANGE / (n - 1);
+        // reassign all panNode values (ratios)
+        for (let i = 0; i < n; i++) {
+            map[i].panNode.pan.setValueAtTime(-1 + step * i, audioCtx.currentTime);
+        }
+    }
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+  
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.parentElement.parentElement.id);
+}
+
+
+function drop(ev) {
+    // swap divs
+    ev.preventDefault();
+    let srcId = ev.dataTransfer.getData("text");
+    var src = document.getElementById(srcId);
+    var prevChair = src.parentNode;
+    var dest = ev.currentTarget.firstElementChild;
+
+    ev.currentTarget.replaceChild(src, dest);
+    prevChair.appendChild(dest);
+
+    // swap panNodes in map
+    let destId = dest.id;
+    // find srcIndex and destIndex
+    let srcIndex, destIndex;
+    for (let i = 0; i < map.length; i++) {
+        if (map[i].id === srcId)
+            srcIndex = i;
+        else if (map[i].id === destId)
+            destIndex = i;
+        else if (srcIndex && destIndex)
+            break;
+    }
+    
+    // swap the pan node values
+    let step = 2 / (map.length - 1);
+    map[srcIndex].panNode.pan.setValueAtTime(-1 + step * destIndex, audioCtx.currentTime);
+    map[destIndex].panNode.pan.setValueAtTime(-1 + step * srcIndex, audioCtx.currentTime);
+
+    let temp = map[srcIndex];
+    map[srcIndex] = map[destIndex];
+    map[destIndex] = temp;
+}
+
 function participantConnected(participant) {
     let chair = document.createElement('div');
     chair.setAttribute('class', 'chair');
+    chair.setAttribute('ondrop', 'drop(event)');
+    chair.setAttribute('ondragover', 'allowDrop(event)')
 
     let participantDiv = document.createElement('div');
     participantDiv.setAttribute('id', participant.sid);
     participantDiv.setAttribute('class', 'participant');
+    participantDiv.setAttribute('draggable', 'true');
+    participantDiv.setAttribute('ondragstart', 'drag(event)');
 
     let tracksDiv = document.createElement('div');
     participantDiv.appendChild(tracksDiv);
@@ -113,7 +181,7 @@ function participantConnected(participant) {
 
     source.connect(panNode);
     panNode.connect(audioCtx.destination);
-    addPersonToTable(panNode); // TODO
+    addPersonToTable(participant.sid, panNode);
 
     participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
     participant.on('trackUnsubscribed', trackUnsubscribed);
@@ -122,7 +190,13 @@ function participantConnected(participant) {
 };
 
 function participantDisconnected(participant) {
-    document.getElementById(participant.sid).parent.remove();
+    document.getElementById(participant.sid).parentElement.remove();
+    for (let i = 0; i < map.length; i++) {
+        if (map[i].id === participant.sid) {
+            map.splice(i, 1);
+            break;
+        }
+    }
     updateParticipantCount();
 };
 
