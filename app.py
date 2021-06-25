@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 
 def get_chatroom(name):
-    for conversation in twilio_client.conversations.conversations.list():
+    for conversation in twilio_client.conversations.conversations.stream():
         if conversation.friendly_name == name:
             return conversation
 
