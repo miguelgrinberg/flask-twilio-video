@@ -19,3 +19,8 @@ To install the application on your system follow these steps:
 Click on the image to watch me set up and install the project on my laptop:
 
 [![Twilio Video App installation walkthrough](https://img.youtube.com/vi/5hdrW6yEwro/hqdefault.jpg)](https://www.youtube.com/watch?v=5hdrW6yEwro)
+
+## Troubleshooting
+
+### On iOS, allowing video/audio causes the video to freeze or turn black.
+Solution: ensure that your iOS version is updated to at least 15.2.  See [this issue](https://github.com/twilio/twilio-video.js/issues/1640#issuecomment-969224423) for more information.
